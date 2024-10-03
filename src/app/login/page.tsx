@@ -1,16 +1,15 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from 'next/image';
+// Import Image if you have an image to optimize, or remove if not needed
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState(""); // State for password
   const [error, setError] = useState("");
-  const [showPopup, setShowPopup] = useState(true); // State for showing the popup
   const [passwordVisible, setPasswordVisible] = useState(false); // State for password visibility
   const router = useRouter();
 
-  const handleJoinChat = () => {
+  const HandleJoinChat = () => {
     if (username.trim() === "" || password.trim() === "") {
       setError("Please enter both username and password to join the chat.");
       return;
@@ -21,10 +20,6 @@ const LoginPage = () => {
 
   const handleShowPassword = () => {
     setPasswordVisible(!passwordVisible); // Toggle password visibility
-  };
-
-  const handleClosePopup = () => {
-    setShowPopup(false); // Hide the popup when the close button is clicked
   };
 
   return (
@@ -60,7 +55,7 @@ const LoginPage = () => {
         <p className="text-red-500 text-center mb-4">{error}</p>
       )}
       <button
-        onClick={handleJoinChat}
+        onClick={HandleJoinChat}
         className="bg-red-500 w-80 border-red-800 border-b-4 hover:bg-red-700 active:bg-red-700 text-white font-bold py-2 px-4 rounded active:border-b-2"
       >
         Join Chat
