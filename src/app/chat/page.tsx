@@ -1,9 +1,8 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
-import Image from "next/image";
 
 // Initialize Firebase (ensure you replace with your actual config)
 if (!firebase.apps.length) {
@@ -25,7 +24,7 @@ type Message = {
   replyTo?: string;
 };
 
-const ChatScreen: React.FC = () => {
+const Chat: React.FC = () => {
   const searchParams = useSearchParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -154,4 +153,12 @@ const ChatScreen: React.FC = () => {
   );
 };
 
-export default ChatScreen;
+const ChatPage: React.FC = () => {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <Chat />
+    </Suspense>
+  );
+};
+
+export default ChatPage;
