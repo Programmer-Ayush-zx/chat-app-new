@@ -1,9 +1,10 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import firebase from "firebase/compat/app";
 import "firebase/compat/firestore";
-import Image from 'next/image';
+import Image from "next/image";
+
 // Initialize Firebase (ensure you replace with your actual config)
 if (!firebase.apps.length) {
   firebase.initializeApp({
@@ -24,20 +25,17 @@ type Message = {
   replyTo?: string;
 };
 
-
-
-const ChatScreen = () => {
-  const router = useRouter();
+const ChatScreen: React.FC = () => {
+  const searchParams = useSearchParams();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
-  const [replyMessage, setReplyMessage] = useState<Message | null>(null); // State to track the message being replied to
+  const [replyMessage, setReplyMessage] = useState<Message | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const { searchParams } = new URL(window.location.href);
+  // Extract username from query parameters using useSearchParams
   const username = searchParams.get("username") || "";
 
   useEffect(() => {
-    // Listen for real-time updates from Firestore
     const unsubscribe = db
       .collection("messages")
       .orderBy("createdAt", "asc")
@@ -53,10 +51,9 @@ const ChatScreen = () => {
       );
 
     return () => unsubscribe();
-  }, [username, router]);
+  }, [username]);
 
   useEffect(() => {
-    // Scroll to the last message when messages change
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
@@ -67,10 +64,10 @@ const ChatScreen = () => {
         text: newMessage,
         createdAt: firebase.firestore.FieldValue.serverTimestamp(),
         userName: username,
-        replyTo: replyMessage ? replyMessage.text : null, // Add replyTo field if a message is being replied to
+        replyTo: replyMessage ? replyMessage.text : null,
       });
       setNewMessage("");
-      setReplyMessage(null); // Reset reply state after sending a message
+      setReplyMessage(null);
     } catch (error) {
       console.error("Error sending message:", error);
       alert("Failed to send message. Please try again.");
@@ -78,37 +75,32 @@ const ChatScreen = () => {
   };
 
   const handleDoubleClick = (message: Message) => {
-    // Set the message to be replied to on double-click
     setReplyMessage(message);
   };
 
-  // Function to format the timestamp
-  const formatTimestamp = (timestamp :any) => {
+  const formatTimestamp = (timestamp: firebase.firestore.Timestamp | null) => {
     if (!timestamp) return "";
     const date = timestamp.toDate();
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
     return `${hours}:${minutes}`;
   };
 
   return (
     <div className="flex flex-col h-screen bg-neutral-900">
-      <p className="text-3xl font-bold mb-4 m-4">
-        Kido Official
-        <span></span>
-        {/**🎀 */}
-      </p>
+      <p className="text-3xl font-bold mb-4 m-4">Kido Official</p>
       <div className="overflow-y-auto flex-1 bg-neutral-900 p-4 rounded-lg shadow-inner">
-        <p className="p-2 bg-green-400 border-green-700 border-b-4 text-green-800 rounded mb-3">Data Loading Completed.</p>
+        <p className="p-2 bg-green-400 border-green-700 border-b-4 text-green-800 rounded mb-3">
+          Data Loading Completed.
+        </p>
         <ul className="space-y-2">
           {messages.map((message, index) => (
             <li
               key={index}
               className={`flex ${
-              
                 message.userName === username ? "justify-end" : "justify-start"
               }`}
-              onDoubleClick={() => handleDoubleClick(message)} // Set up double-click to reply
+              onDoubleClick={() => handleDoubleClick(message)}
             >
               <div
                 className={`${
@@ -161,4 +153,5 @@ const ChatScreen = () => {
     </div>
   );
 };
+
 export default ChatScreen;
